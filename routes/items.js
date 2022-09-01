@@ -6,10 +6,12 @@ const router = Router();
 const {
 	itemsGet,
     itemGet,
+    categoriesGet,
+    descriptionGet,
 } = require("../controllers/items");
 
-router.get("/items", itemsGet);
+router.get("/items", itemsGet, categoriesGet);
 
-router.get("/:id",itemGet);
+router.get("/:id",itemGet, descriptionGet);
 
 module.exports = router;
