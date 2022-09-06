@@ -37,12 +37,15 @@ const itemGet = async (req, res = response, next) => {
               amount: item.price.toFixed(0),
               decimals: item.price % 1
             },
-            picture: item.thumbnail,
+            //picture: item.thumbnail,
+            picture: item.pictures[0].url,
             condition: itemCondition,
             free_shipping: item.shipping && item.shipping.free_shipping,
             
           };
-
+          //res.data.pictures.length && res.data.pictures[0],
+          //console.log(item.pictures);        
+          res.category_id = item.category_id;
         //console.log(informacion.id);
         //console.log(informacion.title);
         /*
@@ -52,26 +55,6 @@ const itemGet = async (req, res = response, next) => {
         console.log(` informacion shipping.free_shipping => ${informacion.shipping.free_shipping}`);
         console.log(` informacion sold_quantity => ${informacion.sold_quantity}`);
         console.log(` informacion sold_quantity => ${informacion.price % 1}`)
-        */
-        /*
-        const product = new Item(
-            informacion.id, 
-            informacion.title, 
-            informacion.thumbnail,
-            '',
-            '',
-            '', 
-            plain_text);
-
-        const firma = {
-            author:{
-                name: "Ricardo",
-                lastname: "Gauna" 
-            }
-        };
-
-        const item = {...firma,...product};
-        //console.log(item);        
         */
         /*
         res.json({
@@ -90,7 +73,7 @@ const itemGet = async (req, res = response, next) => {
 
 };
 
-const descriptionGet = async (req, res = response) => {
+const descriptionGet = async (req, res = response, next) => {
     
     const { id } = req.params;
 
@@ -109,7 +92,11 @@ const descriptionGet = async (req, res = response) => {
 
         plain_text = informacion_description.plain_text;
 
+        //console.log(`plain_text => ${plain_text}`);
+
         results.item = {...res.data.item,...{"description":informacion_description.plain_text}};
+        res.data = results;
+        console.log(`res.data => ${res.data}`);
     }catch (error){
         console.log('--------------------------- ERROR ---------------------------------------');
         console.log(error);
@@ -119,11 +106,12 @@ const descriptionGet = async (req, res = response) => {
     //console.log(plain_text);
 
     
-    
-    
+    next();
+    /*
     res.json({
         results
     });
+    */
 }
 
 //método utilizado por endpoint /api/items?q=:query
@@ -198,7 +186,7 @@ const categoriesGet = async (req, res = response) => {
     };
 
     //console.log(res.category_id);    
-    
+
     const url = `https://api.mercadolibre.com/categories/${res.category_id}`
     
     console.log(url);
@@ -206,18 +194,32 @@ const categoriesGet = async (req, res = response) => {
     const resp = await fetch(`https://api.mercadolibre.com/categories/${res.category_id}`);
     const informacion = await resp.json();
     
+    console.log('**************');
+    console.log('categoriesGet');
     //console.log(informacion);
 
-    const categories = informacion.path_from_root.map(categorie =>{
+    /*
+    const categories = informacion.path_from_root.map(category =>{
         const generado = {
-            name: categorie.name,
+            id: category.id,
+            name: category.name,
         }
         return (generado);
     });
+    */
+    results.categories = informacion.path_from_root;
+    //results.categories = categories;
 
-    results.categories = categories;
+    if (req.query && req.query.q) {    
+        
+        
+        results.items = res.data.items;
 
-    results.items = res.data.items;
+    } else if (req.params && req.params.id) {
+        
+        //results.categories = informacion.categories;
+        results.item = res.data.item;
+    }
     
     res.json({
         results

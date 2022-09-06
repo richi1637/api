@@ -12,6 +12,6 @@ const {
 
 router.get("/items", itemsGet, categoriesGet);
 
-router.get("/:id",itemGet, descriptionGet);
+router.get("/:id",itemGet, descriptionGet, categoriesGet );
 
 module.exports = router;
